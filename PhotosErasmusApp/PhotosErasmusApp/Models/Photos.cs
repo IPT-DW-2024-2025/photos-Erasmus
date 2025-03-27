@@ -1,9 +1,10 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace PhotosErasmusApp.Models {
    public class Photos {
 
-      [Key]
+      [Key] // Primary Key
       public int Id { get; set; }
 
       public string Description { get; set; } = string.Empty;
@@ -13,6 +14,16 @@ namespace PhotosErasmusApp.Models {
       public string FileName { get; set; } = string.Empty;
 
       public Decimal Price { get; set; }
+
+      // ************************************
+      // Foreign Keys
+      // ************************************
+
+
+      [ForeignKey(nameof(Category))]
+      public int CategoryFK { get; set; }
+      public Categories Category { get; set; }
+
 
    }
 }

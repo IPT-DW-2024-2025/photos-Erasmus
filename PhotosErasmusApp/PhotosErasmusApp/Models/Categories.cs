@@ -7,5 +7,17 @@ namespace PhotosErasmusApp.Models {
       public int Id { get; set; }
 
       public string Category { get; set; } = string.Empty;
-   }
+
+      // *************************************
+      // Foreign Key relations
+      // *************************************
+
+      public ICollection<Photos> PhotosList { get; set; } = [];
+
+
+
+
+
+
+    }
 }
