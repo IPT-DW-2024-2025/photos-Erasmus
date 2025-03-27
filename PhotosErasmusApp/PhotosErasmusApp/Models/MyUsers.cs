@@ -1,6 +1,9 @@
-﻿namespace PhotosErasmusApp.Models {
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace PhotosErasmusApp.Models {
    public class MyUsers {
 
+      [Key]
       public int Id { get; set; }
 
       public string Name { get; set; } = string.Empty;
