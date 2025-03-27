@@ -17,5 +17,11 @@ namespace PhotosErasmusApp.Models {
       public string Country { get; set; } = string.Empty;
 
 
-   }
+        // *************************************
+        // Foreign Key relations
+        // *************************************
+
+        public ICollection<Photos> PhotosList { get; set; }
+
+    }
 }

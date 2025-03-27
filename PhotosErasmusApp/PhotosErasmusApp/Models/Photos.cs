@@ -25,5 +25,12 @@ namespace PhotosErasmusApp.Models {
       public Categories Category { get; set; }
 
 
+      [ForeignKey(nameof(Owner))]
+      public int OwnerFK { get; set; }
+      public MyUsers Owner { get; set; }
+
+
+
+
    }
 }
