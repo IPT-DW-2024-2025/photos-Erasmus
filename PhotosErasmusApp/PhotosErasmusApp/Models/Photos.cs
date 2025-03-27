@@ -30,7 +30,7 @@ namespace PhotosErasmusApp.Models {
       public MyUsers Owner { get; set; }
 
 
+      public ICollection<Likes> ListOfLikes { get; set; } = [];
 
-
-   }
+    }
 }
