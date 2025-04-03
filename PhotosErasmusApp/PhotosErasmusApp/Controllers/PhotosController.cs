@@ -21,8 +21,19 @@ namespace PhotosErasmusApp.Controllers {
 
       // GET: Photos
       public async Task<IActionResult> Index() {
-         var applicationDbContext = _context.Photos.Include(p => p.Category).Include(p => p.Owner);
-         return View(await applicationDbContext.ToListAsync());
+
+         /* using LINQ
+          * SELECT *
+          * FROM Photos p INNER JOIN Categories c ON p.CategoryFK=c.Id
+          *               INNER JOIN MyUser m ON p.OwnerFK=m.Id
+          * ORDER BY p.Date DESC
+          */
+         var listOfPhotos = _context.Photos
+                                    .Include(p => p.Category)
+                                    .Include(p => p.Owner)
+                                    .OrderByDescending(p => p.Date);
+        
+         return View(await listOfPhotos.ToListAsync());
       }
 
       // GET: Photos/Details/5
@@ -31,15 +42,15 @@ namespace PhotosErasmusApp.Controllers {
             return NotFound();
          }
 
-         var photos = await _context.Photos
+         var photo = await _context.Photos
              .Include(p => p.Category)
              .Include(p => p.Owner)
              .FirstOrDefaultAsync(m => m.Id == id);
-         if (photos == null) {
+         if (photo == null) {
             return NotFound();
          }
 
-         return View(photos);
+         return View(photo);
       }
 
       // GET: Photos/Create
@@ -54,15 +65,15 @@ namespace PhotosErasmusApp.Controllers {
       // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
       [HttpPost]
       [ValidateAntiForgeryToken]
-      public async Task<IActionResult> Create([Bind("Id,Description,Date,FileName,Price,CategoryFK,OwnerFK")] Photos photos) {
+      public async Task<IActionResult> Create([Bind("Id,Description,Date,FileName,Price,CategoryFK,OwnerFK")] Photos photo) {
          if (ModelState.IsValid) {
-            _context.Add(photos);
+            _context.Add(photo);
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
          }
-         ViewData["CategoryFK"] = new SelectList(_context.Categories, "Id", "Category", photos.CategoryFK);
-         ViewData["OwnerFK"] = new SelectList(_context.MyUsers, "Id", "Id", photos.OwnerFK);
-         return View(photos);
+         ViewData["CategoryFK"] = new SelectList(_context.Categories, "Id", "Category", photo.CategoryFK);
+         ViewData["OwnerFK"] = new SelectList(_context.MyUsers, "Id", "Id", photo.OwnerFK);
+         return View(photo);
       }
 
       // GET: Photos/Edit/5
@@ -71,13 +82,13 @@ namespace PhotosErasmusApp.Controllers {
             return NotFound();
          }
 
-         var photos = await _context.Photos.FindAsync(id);
-         if (photos == null) {
+         var photo = await _context.Photos.FindAsync(id);
+         if (photo == null) {
             return NotFound();
          }
-         ViewData["CategoryFK"] = new SelectList(_context.Categories, "Id", "Category", photos.CategoryFK);
-         ViewData["OwnerFK"] = new SelectList(_context.MyUsers, "Id", "Id", photos.OwnerFK);
-         return View(photos);
+         ViewData["CategoryFK"] = new SelectList(_context.Categories, "Id", "Category", photo.CategoryFK);
+         ViewData["OwnerFK"] = new SelectList(_context.MyUsers, "Id", "Id", photo.OwnerFK);
+         return View(photo);
       }
 
       // POST: Photos/Edit/5
@@ -85,18 +96,18 @@ namespace PhotosErasmusApp.Controllers {
       // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
       [HttpPost]
       [ValidateAntiForgeryToken]
-      public async Task<IActionResult> Edit(int id, [Bind("Id,Description,Date,FileName,Price,CategoryFK,OwnerFK")] Photos photos) {
-         if (id != photos.Id) {
+      public async Task<IActionResult> Edit(int id, [Bind("Id,Description,Date,FileName,Price,CategoryFK,OwnerFK")] Photos photo) {
+         if (id != photo.Id) {
             return NotFound();
          }
 
          if (ModelState.IsValid) {
             try {
-               _context.Update(photos);
+               _context.Update(photo);
                await _context.SaveChangesAsync();
             }
             catch (DbUpdateConcurrencyException) {
-               if (!PhotosExists(photos.Id)) {
+               if (!PhotoExists(photo.Id)) {
                   return NotFound();
                }
                else {
@@ -105,9 +116,9 @@ namespace PhotosErasmusApp.Controllers {
             }
             return RedirectToAction(nameof(Index));
          }
-         ViewData["CategoryFK"] = new SelectList(_context.Categories, "Id", "Category", photos.CategoryFK);
-         ViewData["OwnerFK"] = new SelectList(_context.MyUsers, "Id", "Id", photos.OwnerFK);
-         return View(photos);
+         ViewData["CategoryFK"] = new SelectList(_context.Categories, "Id", "Category", photo.CategoryFK);
+         ViewData["OwnerFK"] = new SelectList(_context.MyUsers, "Id", "Id", photo.OwnerFK);
+         return View(photo);
       }
 
       // GET: Photos/Delete/5
@@ -116,31 +127,31 @@ namespace PhotosErasmusApp.Controllers {
             return NotFound();
          }
 
-         var photos = await _context.Photos
+         var photo = await _context.Photos
              .Include(p => p.Category)
              .Include(p => p.Owner)
              .FirstOrDefaultAsync(m => m.Id == id);
-         if (photos == null) {
+         if (photo == null) {
             return NotFound();
          }
 
-         return View(photos);
+         return View(photo);
       }
 
       // POST: Photos/Delete/5
       [HttpPost, ActionName("Delete")]
       [ValidateAntiForgeryToken]
       public async Task<IActionResult> DeleteConfirmed(int id) {
-         var photos = await _context.Photos.FindAsync(id);
-         if (photos != null) {
-            _context.Photos.Remove(photos);
+         var photo = await _context.Photos.FindAsync(id);
+         if (photo != null) {
+            _context.Photos.Remove(photo);
          }
 
          await _context.SaveChangesAsync();
          return RedirectToAction(nameof(Index));
       }
 
-      private bool PhotosExists(int id) {
+      private bool PhotoExists(int id) {
          return _context.Photos.Any(e => e.Id == id);
       }
    }
