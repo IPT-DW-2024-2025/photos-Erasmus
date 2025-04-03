@@ -9,10 +9,19 @@ namespace PhotosErasmusApp.Models {
 
       public string Description { get; set; } = string.Empty;
 
+      /// <summary>
+      /// the date when we took the photo
+      /// </summary>
       public DateTime Date { get; set; }
 
+      /// <summary>
+      /// The file name of file with the photo on disk drive
+      /// </summary>
       public string FileName { get; set; } = string.Empty;
 
+      /// <summary>
+      /// The price to sell the photo
+      /// </summary>
       public Decimal Price { get; set; }
 
       // ************************************
