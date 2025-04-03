@@ -21,7 +21,15 @@ namespace PhotosErasmusApp.Controllers {
 
       // GET: Categories
       public async Task<IActionResult> Index() {
-         return View(await _context.Categories.ToListAsync());
+
+         // we are making a shearch for Categories in our database
+         // We are using LINQ
+         // please see: https://learn.microsoft.com/en-us/dotnet/csharp/linq/
+         // SELECT *
+         // FROM Categories c
+         // ORDER BY c.Category
+
+         return View(await _context.Categories.OrderBy(c=>c.Category).ToListAsync());
       }
 
       // GET: Categories/Details/5
@@ -30,13 +38,16 @@ namespace PhotosErasmusApp.Controllers {
             return NotFound();
          }
 
-         var categories = await _context.Categories
-             .FirstOrDefaultAsync(m => m.Id == id);
-         if (categories == null) {
+         // SELECT *
+         // FROM Categories m
+         // WHERE m.Id = id
+         var category = await _context.Categories
+                                      .FirstOrDefaultAsync(m => m.Id == id);
+         if (category == null) {
             return NotFound();
          }
 
-         return View(categories);
+         return View(category);
       }
 
       // GET: Categories/Create
@@ -49,13 +60,13 @@ namespace PhotosErasmusApp.Controllers {
       // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
       [HttpPost]
       [ValidateAntiForgeryToken]
-      public async Task<IActionResult> Create([Bind("Id,Category")] Categories categories) {
+      public async Task<IActionResult> Create([Bind("Id,Category")] Categories newCategory) {
          if (ModelState.IsValid) {
-            _context.Add(categories);
+            _context.Add(newCategory);
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
          }
-         return View(categories);
+         return View(newCategory);
       }
 
       // GET: Categories/Edit/5
@@ -64,11 +75,11 @@ namespace PhotosErasmusApp.Controllers {
             return NotFound();
          }
 
-         var categories = await _context.Categories.FindAsync(id);
-         if (categories == null) {
+         var category = await _context.Categories.FindAsync(id);
+         if (category == null) {
             return NotFound();
          }
-         return View(categories);
+         return View(category);
       }
 
       // POST: Categories/Edit/5
@@ -76,18 +87,18 @@ namespace PhotosErasmusApp.Controllers {
       // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
       [HttpPost]
       [ValidateAntiForgeryToken]
-      public async Task<IActionResult> Edit(int id, [Bind("Id,Category")] Categories categories) {
-         if (id != categories.Id) {
+      public async Task<IActionResult> Edit(int id, [Bind("Id,Category")] Categories newCategory) {
+         if (id != newCategory.Id) {
             return NotFound();
          }
 
          if (ModelState.IsValid) {
             try {
-               _context.Update(categories);
+               _context.Update(newCategory);
                await _context.SaveChangesAsync();
             }
             catch (DbUpdateConcurrencyException) {
-               if (!CategoriesExists(categories.Id)) {
+               if (!CategoriesExists(newCategory.Id)) {
                   return NotFound();
                }
                else {
@@ -96,7 +107,7 @@ namespace PhotosErasmusApp.Controllers {
             }
             return RedirectToAction(nameof(Index));
          }
-         return View(categories);
+         return View(newCategory);
       }
 
       // GET: Categories/Delete/5
@@ -105,22 +116,22 @@ namespace PhotosErasmusApp.Controllers {
             return NotFound();
          }
 
-         var categories = await _context.Categories
+         var category = await _context.Categories
              .FirstOrDefaultAsync(m => m.Id == id);
-         if (categories == null) {
+         if (category == null) {
             return NotFound();
          }
 
-         return View(categories);
+         return View(category);
       }
 
       // POST: Categories/Delete/5
       [HttpPost, ActionName("Delete")]
       [ValidateAntiForgeryToken]
       public async Task<IActionResult> DeleteConfirmed(int id) {
-         var categories = await _context.Categories.FindAsync(id);
-         if (categories != null) {
-            _context.Categories.Remove(categories);
+         var category = await _context.Categories.FindAsync(id);
+         if (category != null) {
+            _context.Categories.Remove(category);
          }
 
          await _context.SaveChangesAsync();
