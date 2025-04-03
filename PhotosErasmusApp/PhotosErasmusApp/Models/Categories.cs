@@ -12,7 +12,13 @@ namespace PhotosErasmusApp.Models {
       /// <summary>
       /// The name of the category
       /// </summary>
+      [Display(Name ="Category")]
+      [Required(ErrorMessage ="the {0} is mandatory. You must write up to 10 characters.")]
+      [StringLength(10)]
+      [RegularExpression("[A-Za-z ]{3,10}", 
+         ErrorMessage ="Please, write only english letters for {0}")]
       public string Category { get; set; } = string.Empty;
+
 
       // *************************************
       // Foreign Key relations
