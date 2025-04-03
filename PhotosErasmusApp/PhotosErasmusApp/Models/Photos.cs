@@ -22,12 +22,12 @@ namespace PhotosErasmusApp.Models {
 
       [ForeignKey(nameof(Category))]
       public int CategoryFK { get; set; }
-      public Categories Category { get; set; }
+      public Categories Category { get; set; }=new Categories();
 
 
       [ForeignKey(nameof(Owner))]
       public int OwnerFK { get; set; }
-      public MyUsers Owner { get; set; }
+      public MyUsers Owner { get; set; }=new MyUsers();
 
 
       public ICollection<Likes> ListOfLikes { get; set; } = [];
