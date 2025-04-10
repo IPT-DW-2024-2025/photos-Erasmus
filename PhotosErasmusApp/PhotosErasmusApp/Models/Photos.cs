@@ -12,6 +12,9 @@ namespace PhotosErasmusApp.Models {
       /// <summary>
       /// the date when we took the photo
       /// </summary>
+      [DataType(DataType.Date)]
+      [DisplayFormat(DataFormatString = "{0:dd-MM-yyyy}",
+         ApplyFormatInEditMode = true)]
       public DateTime Date { get; set; }
 
       /// <summary>
