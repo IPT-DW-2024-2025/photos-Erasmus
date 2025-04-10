@@ -1,11 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 
 using PhotosErasmusApp.Data;
 using PhotosErasmusApp.Models;
@@ -32,7 +34,7 @@ namespace PhotosErasmusApp.Controllers {
                                     .Include(p => p.Category)
                                     .Include(p => p.Owner)
                                     .OrderByDescending(p => p.Date);
-        
+
          return View(await listOfPhotos.ToListAsync());
       }
 
@@ -58,11 +60,11 @@ namespace PhotosErasmusApp.Controllers {
          // SELECT c.Id, c.Category
          // FROM Categories c
          // ORDER BY c.Category
-         ViewData["CategoryFK"] = new SelectList(_context.Categories.OrderBy(c=>c.Category), "Id", "Category");
+         ViewData["CategoryFK"] = new SelectList(_context.Categories.OrderBy(c => c.Category), "Id", "Category");
          // SELECT u.Id, u.Name
          // FROM MyUsers u
          // ORDER BY u.Name
-         ViewData["OwnerFK"] = new SelectList(_context.MyUsers.OrderBy(u=>u.Name), "Id", "Name");
+         ViewData["OwnerFK"] = new SelectList(_context.MyUsers.OrderBy(u => u.Name), "Id", "Name");
          return View();
       }
 
@@ -71,7 +73,7 @@ namespace PhotosErasmusApp.Controllers {
       // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
       [HttpPost]
       [ValidateAntiForgeryToken]
-      public async Task<IActionResult> Create([Bind("Id,Description,Date,FileName,Price,CategoryFK,OwnerFK")] Photos photo) {
+      public async Task<IActionResult> Create([Bind("Id,Description,Date,FileName,PriceAux,CategoryFK,OwnerFK")] Photos photo) {
 
          ModelState.Remove("Category.Category");
          ModelState.Remove("Owner.Name");
@@ -79,6 +81,16 @@ namespace PhotosErasmusApp.Controllers {
 
 
          if (ModelState.IsValid) {
+
+            // Lets assign the PriceAux to Price
+            if (!photo.PriceAux.IsNullOrEmpty()) {
+               photo.Price = Convert.ToDecimal(photo.PriceAux.Replace('.',','),
+                  new CultureInfo("tr-TR")
+                  );
+            }
+
+
+
             _context.Add(photo);
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
@@ -98,8 +110,8 @@ namespace PhotosErasmusApp.Controllers {
          if (photo == null) {
             return NotFound();
          }
-         ViewData["CategoryFK"] = new SelectList(_context.Categories.OrderBy(c=>c.Category), "Id", "Category", photo.CategoryFK);
-         ViewData["OwnerFK"] = new SelectList(_context.MyUsers.OrderBy(u=>u.Name), "Id", "Name", photo.OwnerFK);
+         ViewData["CategoryFK"] = new SelectList(_context.Categories.OrderBy(c => c.Category), "Id", "Category", photo.CategoryFK);
+         ViewData["OwnerFK"] = new SelectList(_context.MyUsers.OrderBy(u => u.Name), "Id", "Name", photo.OwnerFK);
          return View(photo);
       }
 

@@ -27,12 +27,24 @@ namespace PhotosErasmusApp.Models {
       /// </summary>
       public Decimal Price { get; set; }
 
-      // ************************************
-      // Foreign Keys
-      // ************************************
+      /// <summary>
+      /// Auxilary atribute to collect the price of a photo
+      /// </summary>
+      [NotMapped] // this means, this attribute is to be used ONLY in C#
+      [Display(Name ="Price")]
+      [RegularExpression("[0-9]{1,5}([,.][0-9]{1,2})?",
+         ErrorMessage ="please, write up to five numbers as price, " +
+         "with up two decimal values")]
+      [StringLength(8)]
+      public string? PriceAux { get; set; }
 
 
-      [ForeignKey(nameof(Category))]
+        // ************************************
+        // Foreign Keys
+        // ************************************
+
+
+        [ForeignKey(nameof(Category))]
       [Display(Name = "Category")]
       public int CategoryFK { get; set; }
       public Categories Category { get; set; } = new Categories();
