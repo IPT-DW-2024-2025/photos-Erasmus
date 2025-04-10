@@ -75,11 +75,6 @@ namespace PhotosErasmusApp.Controllers {
       [ValidateAntiForgeryToken]
       public async Task<IActionResult> Create([Bind("Id,Description,Date,FileName,PriceAux,CategoryFK,OwnerFK")] Photos photo) {
 
-         ModelState.Remove("Category.Category");
-         ModelState.Remove("Owner.Name");
-         ModelState.Remove("Owner.CellPhone");
-
-
          if (ModelState.IsValid) {
 
             // Lets assign the PriceAux to Price
