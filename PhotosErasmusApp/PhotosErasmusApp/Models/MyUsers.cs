@@ -18,7 +18,8 @@ namespace PhotosErasmusApp.Models {
       /// </summary>
       [Required(ErrorMessage = "{0} is mandatory")]
       [StringLength(20)]
-      [RegularExpression("([+]|00)?[0-9]{5-18}")]
+      [RegularExpression("([+]|00)?[0-9]{5,18}",
+         ErrorMessage ="please, write a cell phone number.")]
       public string CellPhone { get; set; } = string.Empty;
 
       /// <summary>
@@ -31,7 +32,8 @@ namespace PhotosErasmusApp.Models {
       /// Postal code of address of user
       /// </summary>
       [StringLength(50)]
-      [RegularExpression("[1-9][0-9]{3,6}-[0-9]{3,5}( [a-zA-Z ]+)?", ErrorMessage = "use only english letters")]
+      [RegularExpression("[1-9][0-9]{3,6}(-[0-9]{3,5})?([ ]+[a-zA-Z ]+)?", 
+         ErrorMessage = "use only numbers and english letters")]
       public string? PostalCode { get; set; } = string.Empty;
 
       /// <summary>
