@@ -239,7 +239,7 @@ namespace PhotosErasmusApp.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Categories");
+                    b.ToTable("Categories", (string)null);
                 });
 
             modelBuilder.Entity("PhotosErasmusApp.Models.Likes", b =>
@@ -257,7 +257,7 @@ namespace PhotosErasmusApp.Data.Migrations
 
                     b.HasIndex("PersonFK");
 
-                    b.ToTable("Likes");
+                    b.ToTable("Likes", (string)null);
                 });
 
             modelBuilder.Entity("PhotosErasmusApp.Models.MyUsers", b =>
@@ -292,7 +292,7 @@ namespace PhotosErasmusApp.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("MyUsers");
+                    b.ToTable("MyUsers", (string)null);
                 });
 
             modelBuilder.Entity("PhotosErasmusApp.Models.Photos", b =>
@@ -329,7 +329,7 @@ namespace PhotosErasmusApp.Data.Migrations
 
                     b.HasIndex("OwnerFK");
 
-                    b.ToTable("Photos");
+                    b.ToTable("Photos", (string)null);
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>

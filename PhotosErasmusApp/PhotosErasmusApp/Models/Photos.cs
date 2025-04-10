@@ -30,16 +30,18 @@ namespace PhotosErasmusApp.Models {
 
 
       [ForeignKey(nameof(Category))]
+      [Display(Name = "Category")]
       public int CategoryFK { get; set; }
-      public Categories Category { get; set; }=new Categories();
+      public Categories Category { get; set; } = new Categories();
 
 
       [ForeignKey(nameof(Owner))]
+      [Display(Name = "Owner of photo")]
       public int OwnerFK { get; set; }
-      public MyUsers Owner { get; set; }=new MyUsers();
+      public MyUsers Owner { get; set; } = new MyUsers();
 
 
       public ICollection<Likes> ListOfLikes { get; set; } = [];
 
-    }
+   }
 }

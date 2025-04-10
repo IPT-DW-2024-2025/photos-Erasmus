@@ -55,8 +55,14 @@ namespace PhotosErasmusApp.Controllers {
 
       // GET: Photos/Create
       public IActionResult Create() {
-         ViewData["CategoryFK"] = new SelectList(_context.Categories, "Id", "Category");
-         ViewData["OwnerFK"] = new SelectList(_context.MyUsers, "Id", "Id");
+         // SELECT c.Id, c.Category
+         // FROM Categories c
+         // ORDER BY c.Category
+         ViewData["CategoryFK"] = new SelectList(_context.Categories.OrderBy(c=>c.Category), "Id", "Category");
+         // SELECT u.Id, u.Name
+         // FROM MyUsers u
+         // ORDER BY u.Name
+         ViewData["OwnerFK"] = new SelectList(_context.MyUsers.OrderBy(u=>u.Name), "Id", "Name");
          return View();
       }
 
@@ -66,6 +72,12 @@ namespace PhotosErasmusApp.Controllers {
       [HttpPost]
       [ValidateAntiForgeryToken]
       public async Task<IActionResult> Create([Bind("Id,Description,Date,FileName,Price,CategoryFK,OwnerFK")] Photos photo) {
+
+         ModelState.Remove("Category.Category");
+         ModelState.Remove("Owner.Name");
+         ModelState.Remove("Owner.CellPhone");
+
+
          if (ModelState.IsValid) {
             _context.Add(photo);
             await _context.SaveChangesAsync();
@@ -86,8 +98,8 @@ namespace PhotosErasmusApp.Controllers {
          if (photo == null) {
             return NotFound();
          }
-         ViewData["CategoryFK"] = new SelectList(_context.Categories, "Id", "Category", photo.CategoryFK);
-         ViewData["OwnerFK"] = new SelectList(_context.MyUsers, "Id", "Id", photo.OwnerFK);
+         ViewData["CategoryFK"] = new SelectList(_context.Categories.OrderBy(c=>c.Category), "Id", "Category", photo.CategoryFK);
+         ViewData["OwnerFK"] = new SelectList(_context.MyUsers.OrderBy(u=>u.Name), "Id", "Name", photo.OwnerFK);
          return View(photo);
       }
 
