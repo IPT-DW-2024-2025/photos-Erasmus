@@ -398,3 +398,7 @@ FodyWeavers.xsd
 
 # JetBrains Rider
 *.sln.iml
+
+
+# ignore files on Images folder
+/PhotosErasmusApp/PhotosErasmusApp/wwwroot/images/*
