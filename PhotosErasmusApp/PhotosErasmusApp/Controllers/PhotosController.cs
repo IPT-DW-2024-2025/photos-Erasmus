@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.AspNetCore.Routing.Constraints;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 
@@ -15,10 +16,20 @@ using PhotosErasmusApp.Models;
 namespace PhotosErasmusApp.Controllers {
    public class PhotosController: Controller {
 
+      /// <summary>
+      /// reference to the project's database
+      /// </summary>
       private readonly ApplicationDbContext _context;
 
-      public PhotosController(ApplicationDbContext context) {
+      /// <summary>
+      /// the data related with the web server
+      /// </summary>
+      private readonly IWebHostEnvironment _webHostEnvironment;
+
+      public PhotosController(ApplicationDbContext context,
+         IWebHostEnvironment webHostEnvironment) {
          _context = context;
+         _webHostEnvironment = webHostEnvironment;
       }
 
       // GET: Photos
@@ -73,27 +84,99 @@ namespace PhotosErasmusApp.Controllers {
       // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
       [HttpPost]
       [ValidateAntiForgeryToken]
-      public async Task<IActionResult> Create([Bind("Id,Description,Date,FileName,PriceAux,CategoryFK,OwnerFK")] Photos photo) {
+      public async Task<IActionResult> Create([Bind("Description,Date,FileName,PriceAux,CategoryFK,OwnerFK")] Photos photo, IFormFile PhotoFile) {
 
-         if (ModelState.IsValid) {
+         // aux. vars.
+         bool isError = false;
+         string imageName = "";
+
+         /* Algorithm to deal with Photos
+          * 1- ensure that we receive a file
+          *    if is null, notify user, and send control to user
+          * 2- ensure that you receive a Photo (JPEG or PNG)
+          *    if not, notify user, and resend control to he
+          * 3- save the image to disk drive and add its data to database
+          *    3.1- define the file name
+          *    3.2- assign that name to database
+          *    3.3- save the image to disk drive 
+          */
+
+         // 1-
+         if (PhotoFile is null) {
+            ModelState.AddModelError("", "Please, you must add an image.");
+            // return View(photo);
+            isError = true;
+         }
+
+         // 2-
+         // https://developer.mozilla.org/en-US/docs/Web/HTTP/Guides/MIME_types
+         if (!(PhotoFile.ContentType == "image/jpeg" || PhotoFile.ContentType == "image/png")) {
+            ModelState.AddModelError("", "Please, you are uploading a file, but you must upload an image.");
+            isError = true;
+         }
+
+         // 3-
+         // we have an image :-)
+         // 3.1-
+         imageName = Guid.NewGuid().ToString();
+         string extension = Path.GetExtension(PhotoFile.FileName).ToLower();
+         imageName += extension;
+
+         // 3.2-
+         photo.FileName = imageName;
+
+         // 3.3-
+         // this will be done only after the data was saved to database
+
+
+
+         if (!isError && ModelState.IsValid) {
 
             // Lets assign the PriceAux to Price
             if (!photo.PriceAux.IsNullOrEmpty()) {
-               photo.Price = Convert.ToDecimal(photo.PriceAux.Replace('.',','),
+               photo.Price = Convert.ToDecimal(photo.PriceAux.Replace('.', ','),
                   new CultureInfo("tr-TR")
                   );
             }
 
-
-
             _context.Add(photo);
             await _context.SaveChangesAsync();
+
+            // 3.3-
+            // if we arrive here, the data of your photo is saved on database
+            // we will save photo file to diskdrive
+            // where to store the file?
+            string whereToStoreTheImage = _webHostEnvironment.WebRootPath;
+            whereToStoreTheImage = Path.Combine(whereToStoreTheImage, "images");
+            if (!Directory.Exists(whereToStoreTheImage)) {
+               Directory.CreateDirectory(whereToStoreTheImage);
+            }
+            // join the location of your file to its name 
+            imageName = Path.Combine(whereToStoreTheImage, imageName);
+            // write the file to disk drive
+            using var stream = new FileStream(
+                imageName, FileMode.Create
+             );
+            await PhotoFile.CopyToAsync(stream);
+
+
+
+
             return RedirectToAction(nameof(Index));
          }
+
          ViewData["CategoryFK"] = new SelectList(_context.Categories, "Id", "Category", photo.CategoryFK);
-         ViewData["OwnerFK"] = new SelectList(_context.MyUsers, "Id", "Id", photo.OwnerFK);
+         ViewData["OwnerFK"] = new SelectList(_context.MyUsers, "Id", "Name", photo.OwnerFK);
+
+         // if we arrive here, something went wrong...
          return View(photo);
       }
+
+
+
+
+
+
 
       // GET: Photos/Edit/5
       public async Task<IActionResult> Edit(int? id) {
@@ -107,6 +190,7 @@ namespace PhotosErasmusApp.Controllers {
          }
          ViewData["CategoryFK"] = new SelectList(_context.Categories.OrderBy(c => c.Category), "Id", "Category", photo.CategoryFK);
          ViewData["OwnerFK"] = new SelectList(_context.MyUsers.OrderBy(u => u.Name), "Id", "Name", photo.OwnerFK);
+
          return View(photo);
       }
 

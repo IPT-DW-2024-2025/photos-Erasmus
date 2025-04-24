@@ -22,6 +22,7 @@ namespace PhotosErasmusApp.Models {
       /// <summary>
       /// The file name of file with the photo on disk drive
       /// </summary>
+      [Display(Name ="File")]
       public string FileName { get; set; } = string.Empty;
 
       /// <summary>
