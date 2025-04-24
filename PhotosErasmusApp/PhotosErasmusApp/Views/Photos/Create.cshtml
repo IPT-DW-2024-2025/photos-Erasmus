@@ -1,0 +1,61 @@
+﻿@model PhotosErasmusApp.Models.Photos
+
+@{
+   ViewData["Title"] = "Create";
+}
+
+<h1>Create</h1>
+
+<h4>Photos</h4>
+<hr />
+<div class="row">
+   <div class="col-md-4">
+      @*  please, change the enctype to "multipart/form-data" for the form
+          send the file to the server  *@
+      <form asp-action="Create" method="post" enctype="multipart/form-data">
+         <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+         <div class="form-group">
+            <label asp-for="Description" class="control-label"></label>
+            <input asp-for="Description" class="form-control" />
+            <span asp-validation-for="Description" class="text-danger"></span>
+         </div>
+         <div class="form-group">
+            <label asp-for="Date" class="control-label"></label>
+            <input asp-for="Date" class="form-control" />
+            <span asp-validation-for="Date" class="text-danger"></span>
+         </div>
+         <div class="form-group">
+            <label asp-for="FileName" class="control-label"></label>
+            <!--   <input asp-for="FileName" class="form-control" />    -->
+            <input name="PhotoFile" type="file" accept=".jpg,.jpeg,.png" class="form-control" />
+            <!--    <span asp-validation-for="FileName" class="text-danger"></span>    -->
+         </div>
+         <div class="form-group">
+            <label asp-for="PriceAux" class="control-label"></label>
+            <input asp-for="PriceAux" class="form-control" />
+            <span asp-validation-for="PriceAux" class="text-danger"></span>
+         </div>
+         <div class="form-group">
+            <label asp-for="CategoryFK" class="control-label"></label>
+            <select asp-for="CategoryFK" class="form-control" asp-items="ViewBag.CategoryFK"></select>
+         </div>
+         <div class="form-group">
+            <label asp-for="OwnerFK" class="control-label"></label>
+            <select asp-for="OwnerFK" class="form-control" asp-items="ViewBag.OwnerFK"></select>
+         </div>
+         <div class="form-group">
+            <input type="submit" value="Create" class="btn btn-primary" />
+         </div>
+      </form>
+   </div>
+</div>
+
+<div>
+   <a asp-action="Index">Back to List</a>
+</div>
+
+@section Scripts {
+   @{
+      await Html.RenderPartialAsync("_ValidationScriptsPartial");
+   }
+}

@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
+using Microsoft.EntityFrameworkCore;
 
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -16,12 +17,14 @@ namespace PhotosErasmusApp.Models {
 
       [ForeignKey(nameof(Photo))]
       public int PhotoFK { get; set; }
-      public Photos Photo { get; set; } = new Photos();
+      [ValidateNever]
+      public Photos Photo { get; set; } = null!;
 
 
       [ForeignKey(nameof(Person))]
       public int PersonFK { get; set; }
-      public MyUsers Person { get; set; } = new MyUsers();
+      [ValidateNever]
+      public MyUsers Person { get; set; } = null!;
 
    }
 }

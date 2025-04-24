@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using PhotosErasmusApp.Data;
 
@@ -11,9 +12,11 @@ using PhotosErasmusApp.Data;
 namespace PhotosErasmusApp.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250410093557_MyUserChanges")]
+    partial class MyUserChanges
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -239,7 +242,7 @@ namespace PhotosErasmusApp.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Categories", (string)null);
+                    b.ToTable("Categories");
                 });
 
             modelBuilder.Entity("PhotosErasmusApp.Models.Likes", b =>
@@ -257,7 +260,7 @@ namespace PhotosErasmusApp.Data.Migrations
 
                     b.HasIndex("PersonFK");
 
-                    b.ToTable("Likes", (string)null);
+                    b.ToTable("Likes");
                 });
 
             modelBuilder.Entity("PhotosErasmusApp.Models.MyUsers", b =>
@@ -292,7 +295,7 @@ namespace PhotosErasmusApp.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("MyUsers", (string)null);
+                    b.ToTable("MyUsers");
                 });
 
             modelBuilder.Entity("PhotosErasmusApp.Models.Photos", b =>
@@ -329,7 +332,7 @@ namespace PhotosErasmusApp.Data.Migrations
 
                     b.HasIndex("OwnerFK");
 
-                    b.ToTable("Photos", (string)null);
+                    b.ToTable("Photos");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
