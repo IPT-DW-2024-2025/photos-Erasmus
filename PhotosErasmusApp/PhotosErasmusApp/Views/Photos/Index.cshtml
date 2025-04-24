@@ -1,65 +1,68 @@
 ﻿@model IEnumerable<PhotosErasmusApp.Models.Photos>
 
 @{
-    ViewData["Title"] = "Index";
+   ViewData["Title"] = "Index";
 }
 
 <h1>Index</h1>
 
 <p>
-    <a asp-action="Create">Create New</a>
+   <a asp-action="Create">Create New</a>
 </p>
 <table class="table">
-    <thead>
-        <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.Description)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Date)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.FileName)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Price)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Category)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Owner)
-            </th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-@foreach (var item in Model) {
-        <tr>
+   <thead>
+      <tr>
+         <th>
+            @Html.DisplayNameFor(model => model.Description)
+         </th>
+         <th>
+            @Html.DisplayNameFor(model => model.Date)
+         </th>
+         <th>
+            @Html.DisplayNameFor(model => model.FileName)
+         </th>
+         <th>
+            @Html.DisplayNameFor(model => model.Price)
+         </th>
+         <th>
+            @Html.DisplayNameFor(model => model.Category)
+         </th>
+         <th>
+            @Html.DisplayNameFor(model => model.Owner)
+         </th>
+         <th></th>
+      </tr>
+   </thead>
+   <tbody>
+      @foreach (var item in Model) {
+         <tr>
             <td>
-                @Html.DisplayFor(modelItem => item.Description)
+               @Html.DisplayFor(modelItem => item.Description)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.Date)
+               @Html.DisplayFor(modelItem => item.Date)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.FileName)
+               @*    @Html.DisplayFor(modelItem => item.FileName)  *@
+               <img src="~/images/@item.FileName"
+                    alt="image of photo"
+                    height="100" />
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.Price)
+               @Html.DisplayFor(modelItem => item.Price)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.Category.Category)
+               @Html.DisplayFor(modelItem => item.Category.Category)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.Owner.Id)
+               @Html.DisplayFor(modelItem => item.Owner.Id)
             </td>
             <td>
-                <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
+               <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
+               <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
+               <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
             </td>
-        </tr>
-}
-    </tbody>
+         </tr>
+      }
+   </tbody>
 </table>
