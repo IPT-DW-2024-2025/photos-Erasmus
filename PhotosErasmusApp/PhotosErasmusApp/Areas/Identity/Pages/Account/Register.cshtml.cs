@@ -18,8 +18,10 @@ using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.WebUtilities;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
+using PhotosErasmusApp.Data;
 using PhotosErasmusApp.Models;
 
 namespace PhotosErasmusApp.Areas.Identity.Pages.Account {
@@ -30,19 +32,23 @@ namespace PhotosErasmusApp.Areas.Identity.Pages.Account {
       private readonly IUserEmailStore<IdentityUser> _emailStore;
       private readonly ILogger<RegisterModel> _logger;
       private readonly IEmailSender _emailSender;
+      private readonly ApplicationDbContext _context;
 
       public RegisterModel(
           UserManager<IdentityUser> userManager,
           IUserStore<IdentityUser> userStore,
           SignInManager<IdentityUser> signInManager,
           ILogger<RegisterModel> logger,
-          IEmailSender emailSender) {
+          IEmailSender emailSender,
+          ApplicationDbContext context
+          ) {
          _userManager = userManager;
          _userStore = userStore;
          _emailStore = GetEmailStore();
          _signInManager = signInManager;
          _logger = logger;
          _emailSender = emailSender;
+         _context = context;
       }
 
       /// <summary>
@@ -106,23 +112,67 @@ namespace PhotosErasmusApp.Areas.Identity.Pages.Account {
       }
 
 
+      // This function is 'connected' with the HTTP GET verb of HTTP protocol 
       public async Task OnGetAsync(string returnUrl = null) {
          ReturnUrl = returnUrl;
          ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
       }
 
+
+      // This function is 'connected' with the HTTP POST verb of HTTP protocol 
+
       public async Task<IActionResult> OnPostAsync(string returnUrl = null) {
+         // This variable is used to redirect the user to a new URL,
+         // after autentication process finish
          returnUrl ??= Url.Content("~/");
+
+         // if you are using 'external login' tools, you can use it
          ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
+
+
+         // if all data that you need is OK, you can continue
          if (ModelState.IsValid) {
+
             var user = CreateUser();
 
+            // assign the email as 'UserName' and the email as 'email' to the new user
             await _userStore.SetUserNameAsync(user, Input.Email, CancellationToken.None);
             await _emailStore.SetEmailAsync(user, Input.Email, CancellationToken.None);
+            // create the new user
             var result = await _userManager.CreateAsync(user, Input.Password);
 
+            // if it is possible to create the user
             if (result.Succeeded) {
                _logger.LogInformation("User created a new account with password.");
+
+               // *********************************************
+               // save the personal user's data to the database
+               // *********************************************
+
+               try {
+                  // assign the autentication UserName to the User's data
+                  Input.MyUser.UserName = Input.Email;
+                  //  Input.MyUser.UserName = user.UserName;   // if you want, you can use this line, also
+
+                  _context.Add(Input.MyUser);
+                  await _context.SaveChangesAsync();
+               }
+               catch (Exception) {
+                  // YOU MUST DEAL WITH THE EXCEPTION
+                  /*
+                   * - write on the disk drive of your server a log with the error
+                   * - send an email to your app administrator with the error
+                   * - write to database, to ERROR table, the data related with the error
+                   *     this can be tricky if the problem is with the database access
+                   * - and,
+                   *    - delete the autentication data - the user's data
+                   * - send a message to user' screen, informing that you have a problem
+                   */
+                  // throw;
+               }
+               // *********************************************
+
+
 
                var userId = await _userManager.GetUserIdAsync(user);
                var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
