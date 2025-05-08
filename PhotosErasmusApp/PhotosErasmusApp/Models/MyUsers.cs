@@ -43,6 +43,15 @@ namespace PhotosErasmusApp.Models {
       public string? Country { get; set; } = string.Empty;
 
 
+      // **************************************************
+      /// <summary>
+      /// This atribute is used to 'connect' the Autentication table
+      /// and the data of our project
+      /// </summary>
+      public string UserName { get; set; } = "";
+      // **************************************************
+
+
       // *************************************
       // Foreign Key relations
       // *************************************
