@@ -4,6 +4,7 @@ using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Routing.Constraints;
@@ -14,6 +15,10 @@ using PhotosErasmusApp.Data;
 using PhotosErasmusApp.Models;
 
 namespace PhotosErasmusApp.Controllers {
+
+
+
+   [Authorize]  // this means that only Autenticated people can access these data
    public class PhotosController: Controller {
 
       /// <summary>
@@ -33,6 +38,7 @@ namespace PhotosErasmusApp.Controllers {
       }
 
       // GET: Photos
+      [AllowAnonymous]  // Everyone can access the Photos list
       public async Task<IActionResult> Index() {
 
          /* using LINQ
