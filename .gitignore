@@ -401,4 +401,4 @@ FodyWeavers.xsd
 
 
 # ignore files on Images folder
-/PhotosErasmusApp/PhotosErasmusApp/wwwroot/images/*
+/PhotosErasmusApp/PhotosErasmusApp/wwwroot/images/
