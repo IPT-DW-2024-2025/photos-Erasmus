@@ -19,7 +19,7 @@ namespace PhotosErasmusApp.Controllers {
 
 
    [Authorize]  // this means that only Autenticated people can access these data
-   public class PhotosController: Controller {
+   public class PhotosController:Controller {
 
       /// <summary>
       /// reference to the project's database
@@ -33,8 +33,8 @@ namespace PhotosErasmusApp.Controllers {
 
       public PhotosController(ApplicationDbContext context,
          IWebHostEnvironment webHostEnvironment) {
-         _context = context;
-         _webHostEnvironment = webHostEnvironment;
+         _context=context;
+         _webHostEnvironment=webHostEnvironment;
       }
 
       // GET: Photos
@@ -57,40 +57,55 @@ namespace PhotosErasmusApp.Controllers {
 
       // GET: Photos/Details/5
       public async Task<IActionResult> Details(int? id) {
-         if (id == null) {
+         if (id==null) {
             return NotFound();
          }
 
          var photo = await _context.Photos
              .Include(p => p.Category)
              .Include(p => p.Owner)
-             .FirstOrDefaultAsync(m => m.Id == id);
-         if (photo == null) {
+             .FirstOrDefaultAsync(m => m.Id==id);
+         if (photo==null) {
             return NotFound();
          }
 
          return View(photo);
       }
 
+
+
+
+
       // GET: Photos/Create
       public IActionResult Create() {
          // SELECT c.Id, c.Category
          // FROM Categories c
          // ORDER BY c.Category
-         ViewData["CategoryFK"] = new SelectList(_context.Categories.OrderBy(c => c.Category), "Id", "Category");
-         // SELECT u.Id, u.Name
-         // FROM MyUsers u
-         // ORDER BY u.Name
-         ViewData["OwnerFK"] = new SelectList(_context.MyUsers.OrderBy(u => u.Name), "Id", "Name");
+         ViewData["CategoryFK"]=new SelectList(_context.Categories.OrderBy(c => c.Category),"Id","Category");
+
+
+         /* at this moment, we do not need this code anymore
+          * if a user is authenticated, we will use its data
+          */
+         //// SELECT u.Id, u.Name
+         //// FROM MyUsers u
+         //// ORDER BY u.Name
+         //ViewData["OwnerFK"] = new SelectList(_context.MyUsers.OrderBy(u => u.Name), "Id", "Name");
+
+
          return View();
       }
+
+
+
+
 
       // POST: Photos/Create
       // To protect from overposting attacks, enable the specific properties you want to bind to.
       // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
       [HttpPost]
       [ValidateAntiForgeryToken]
-      public async Task<IActionResult> Create([Bind("Description,Date,FileName,PriceAux,CategoryFK,OwnerFK")] Photos photo, IFormFile PhotoFile) {
+      public async Task<IActionResult> Create([Bind("Description,Date,FileName,PriceAux,CategoryFK,OwnerFK")] Photos photo,IFormFile PhotoFile) {
 
          // aux. vars.
          bool isError = false;
@@ -109,59 +124,82 @@ namespace PhotosErasmusApp.Controllers {
 
          // 1-
          if (PhotoFile is null) {
-            ModelState.AddModelError("", "Please, you must add an image.");
+            ModelState.AddModelError("","Please, you must add an image.");
             // return View(photo);
-            isError = true;
+            isError=true;
          }
 
          // 2-
          // https://developer.mozilla.org/en-US/docs/Web/HTTP/Guides/MIME_types
-         if (!(PhotoFile.ContentType == "image/jpeg" || PhotoFile.ContentType == "image/png")) {
-            ModelState.AddModelError("", "Please, you are uploading a file, but you must upload an image.");
-            isError = true;
+         if (!(PhotoFile.ContentType=="image/jpeg"||PhotoFile.ContentType=="image/png")) {
+            ModelState.AddModelError("","Please, you are uploading a file, but you must upload an image.");
+            isError=true;
          }
 
          // 3-
          // we have an image :-)
          // 3.1-
-         imageName = Guid.NewGuid().ToString();
+         imageName=Guid.NewGuid().ToString();
          string extension = Path.GetExtension(PhotoFile.FileName).ToLower();
-         imageName += extension;
+         imageName+=extension;
 
          // 3.2-
-         photo.FileName = imageName;
+         photo.FileName=imageName;
 
          // 3.3-
          // this will be done only after the data was saved to database
 
 
 
-         if (!isError && ModelState.IsValid) {
+         if (!isError&&ModelState.IsValid) {
+            try {
+               // Lets assign the PriceAux to Price
+               if (!photo.PriceAux.IsNullOrEmpty()) {
+                  photo.Price=Convert.ToDecimal(photo.PriceAux.Replace('.',','),
+                     new CultureInfo("tr-TR")
+                     );
+               }
 
-            // Lets assign the PriceAux to Price
-            if (!photo.PriceAux.IsNullOrEmpty()) {
-               photo.Price = Convert.ToDecimal(photo.PriceAux.Replace('.', ','),
-                  new CultureInfo("tr-TR")
-                  );
+               // we need to assign the 'owner' to the photo
+               string userName = User.Identity.Name; // this is the login name
+
+               // we use this code to figure out the Owner's ID, or
+               // instead the code commented bellow
+               //var idOwner = await _context.MyUsers
+               //                .Where(u => u.UserName==userName)
+               //                .Select(u => u.Id)
+               //                .FirstOrDefaultAsync();
+               //photo.OwnerFK=idOwner;
+
+               var owner = await _context.MyUsers
+                                           .Where(u => u.UserName==userName)
+                                           .FirstOrDefaultAsync();
+               photo.Owner=owner;
+
+
+               _context.Add(photo);
+               await _context.SaveChangesAsync();
             }
-
-            _context.Add(photo);
-            await _context.SaveChangesAsync();
+            catch (Exception) {
+               // please, remember that you need to deal with the exception!!!!
+               // because, otherwise is the same of not having the Try-Catch
+               throw;
+            }
 
             // 3.3-
             // if we arrive here, the data of your photo is saved on database
             // we will save photo file to diskdrive
             // where to store the file?
             string whereToStoreTheImage = _webHostEnvironment.WebRootPath;
-            whereToStoreTheImage = Path.Combine(whereToStoreTheImage, "images");
+            whereToStoreTheImage=Path.Combine(whereToStoreTheImage,"images");
             if (!Directory.Exists(whereToStoreTheImage)) {
                Directory.CreateDirectory(whereToStoreTheImage);
             }
             // join the location of your file to its name 
-            imageName = Path.Combine(whereToStoreTheImage, imageName);
+            imageName=Path.Combine(whereToStoreTheImage,imageName);
             // write the file to disk drive
             using var stream = new FileStream(
-                imageName, FileMode.Create
+                imageName,FileMode.Create
              );
             await PhotoFile.CopyToAsync(stream);
 
@@ -171,8 +209,8 @@ namespace PhotosErasmusApp.Controllers {
             return RedirectToAction(nameof(Index));
          }
 
-         ViewData["CategoryFK"] = new SelectList(_context.Categories, "Id", "Category", photo.CategoryFK);
-         ViewData["OwnerFK"] = new SelectList(_context.MyUsers, "Id", "Name", photo.OwnerFK);
+         ViewData["CategoryFK"]=new SelectList(_context.Categories,"Id","Category",photo.CategoryFK);
+         ViewData["OwnerFK"]=new SelectList(_context.MyUsers,"Id","Name",photo.OwnerFK);
 
          // if we arrive here, something went wrong...
          return View(photo);
@@ -186,16 +224,23 @@ namespace PhotosErasmusApp.Controllers {
 
       // GET: Photos/Edit/5
       public async Task<IActionResult> Edit(int? id) {
-         if (id == null) {
-            return NotFound();
+         if (id==null) {
+            //  return NotFound();
+            return RedirectToAction("Index");
          }
 
-         var photo = await _context.Photos.FindAsync(id);
-         if (photo == null) {
-            return NotFound();
+         //var photo = await _context.Photos.FindAsync(id);
+         var photo = await _context.Photos
+                                   .Where(p => p.Id==id&&
+                                               p.Owner.UserName==User.Identity.Name)
+                                   .FirstOrDefaultAsync();
+         if (photo==null) {
+            //  return NotFound();
+            return RedirectToAction("Index");
          }
-         ViewData["CategoryFK"] = new SelectList(_context.Categories.OrderBy(c => c.Category), "Id", "Category", photo.CategoryFK);
-         ViewData["OwnerFK"] = new SelectList(_context.MyUsers.OrderBy(u => u.Name), "Id", "Name", photo.OwnerFK);
+         ViewData["CategoryFK"]=new SelectList(_context.Categories.OrderBy(c => c.Category),"Id","Category",photo.CategoryFK);
+         // we do not need this anymore (please, see the 'Create' action)
+         //ViewData["OwnerFK"]=new SelectList(_context.MyUsers.OrderBy(u => u.Name),"Id","Name",photo.OwnerFK);
 
          return View(photo);
       }
@@ -205,9 +250,20 @@ namespace PhotosErasmusApp.Controllers {
       // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
       [HttpPost]
       [ValidateAntiForgeryToken]
-      public async Task<IActionResult> Edit(int id, [Bind("Id,Description,Date,FileName,Price,CategoryFK,OwnerFK")] Photos photo) {
-         if (id != photo.Id) {
+      public async Task<IActionResult> Edit(int id,[Bind("Id,Description,Date,FileName,Price,CategoryFK,OwnerFK")] Photos photo) {
+         if (id!=photo.Id) {
             return NotFound();
+         }
+
+         var oldPhoto = await _context.Photos
+                                      .AsNoTracking()
+                                      .Where(p => p.Id==id&&
+                                                  p.Owner.UserName==User.Identity.Name)
+                                      .FirstOrDefaultAsync();
+         if (oldPhoto==null) {
+            // you don't have a Photo
+            // or you are not the owner of the photo that is goint to be changed
+            return RedirectToAction("Index");
          }
 
          if (ModelState.IsValid) {
@@ -225,23 +281,29 @@ namespace PhotosErasmusApp.Controllers {
             }
             return RedirectToAction(nameof(Index));
          }
-         ViewData["CategoryFK"] = new SelectList(_context.Categories, "Id", "Category", photo.CategoryFK);
-         ViewData["OwnerFK"] = new SelectList(_context.MyUsers, "Id", "Id", photo.OwnerFK);
+         ViewData["CategoryFK"]=new SelectList(_context.Categories,"Id","Category",photo.CategoryFK);
+         ViewData["OwnerFK"]=new SelectList(_context.MyUsers,"Id","Id",photo.OwnerFK);
          return View(photo);
       }
 
+
+
+
       // GET: Photos/Delete/5
       public async Task<IActionResult> Delete(int? id) {
-         if (id == null) {
-            return NotFound();
+         if (id==null) {
+            // return NotFound();
+            return RedirectToAction("Index");
          }
 
          var photo = await _context.Photos
-             .Include(p => p.Category)
-             .Include(p => p.Owner)
-             .FirstOrDefaultAsync(m => m.Id == id);
-         if (photo == null) {
-            return NotFound();
+                                   .Include(p => p.Category)
+                                   .Include(p => p.Owner)
+                                   .FirstOrDefaultAsync(m => m.Id==id&&
+                                                             m.Owner.UserName==User.Identity.Name);
+         if (photo==null) {
+            // return NotFound();
+            return RedirectToAction("Index");
          }
 
          return View(photo);
@@ -251,17 +313,28 @@ namespace PhotosErasmusApp.Controllers {
       [HttpPost, ActionName("Delete")]
       [ValidateAntiForgeryToken]
       public async Task<IActionResult> DeleteConfirmed(int id) {
-         var photo = await _context.Photos.FindAsync(id);
-         if (photo != null) {
-            _context.Photos.Remove(photo);
+
+         //var photo = await _context.Photos.FindAsync(id);
+         var photo = await _context.Photos
+                                   .Where(p => p.Id==id&&
+                                               p.Owner.UserName==User.Identity.Name)
+                                   .FirstOrDefaultAsync();
+         try {
+            if (photo!=null) {
+               _context.Photos.Remove(photo);
+               await _context.SaveChangesAsync();
+            }
+         }
+         catch (Exception) {
+            // DO NOT FORGET TO DEAL WITH THE EXCEPTION!!!
+            throw;
          }
 
-         await _context.SaveChangesAsync();
          return RedirectToAction(nameof(Index));
       }
 
       private bool PhotoExists(int id) {
-         return _context.Photos.Any(e => e.Id == id);
+         return _context.Photos.Any(e => e.Id==id);
       }
    }
 }
