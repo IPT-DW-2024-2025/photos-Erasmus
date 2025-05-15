@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -11,6 +12,10 @@ using PhotosErasmusApp.Data;
 using PhotosErasmusApp.Models;
 
 namespace PhotosErasmusApp.Controllers {
+
+
+
+   [Authorize(Roles ="administrator")]
    public class CategoriesController: Controller {
 
       private readonly ApplicationDbContext _context;
@@ -20,6 +25,7 @@ namespace PhotosErasmusApp.Controllers {
       }
 
       // GET: Categories
+      [AllowAnonymous]
       public async Task<IActionResult> Index() {
 
          // we are making a shearch for Categories in our database
