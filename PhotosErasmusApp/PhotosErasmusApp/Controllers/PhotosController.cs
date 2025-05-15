@@ -225,15 +225,22 @@ namespace PhotosErasmusApp.Controllers {
       // GET: Photos/Edit/5
       public async Task<IActionResult> Edit(int? id) {
          if (id==null) {
-            return NotFound();
+            //  return NotFound();
+            return RedirectToAction("Index");
          }
 
-         var photo = await _context.Photos.FindAsync(id);
+         //var photo = await _context.Photos.FindAsync(id);
+         var photo = await _context.Photos
+                                   .Where(p => p.Id==id&&
+                                               p.Owner.UserName==User.Identity.Name)
+                                   .FirstOrDefaultAsync();
          if (photo==null) {
-            return NotFound();
+            //  return NotFound();
+            return RedirectToAction("Index");
          }
          ViewData["CategoryFK"]=new SelectList(_context.Categories.OrderBy(c => c.Category),"Id","Category",photo.CategoryFK);
-         ViewData["OwnerFK"]=new SelectList(_context.MyUsers.OrderBy(u => u.Name),"Id","Name",photo.OwnerFK);
+         // we do not need this anymore (please, see the 'Create' action)
+         //ViewData["OwnerFK"]=new SelectList(_context.MyUsers.OrderBy(u => u.Name),"Id","Name",photo.OwnerFK);
 
          return View(photo);
       }
@@ -246,6 +253,17 @@ namespace PhotosErasmusApp.Controllers {
       public async Task<IActionResult> Edit(int id,[Bind("Id,Description,Date,FileName,Price,CategoryFK,OwnerFK")] Photos photo) {
          if (id!=photo.Id) {
             return NotFound();
+         }
+
+         var oldPhoto = await _context.Photos
+                                      .AsNoTracking()
+                                      .Where(p => p.Id==id&&
+                                                  p.Owner.UserName==User.Identity.Name)
+                                      .FirstOrDefaultAsync();
+         if (oldPhoto==null) {
+            // you don't have a Photo
+            // or you are not the owner of the photo that is goint to be changed
+            return RedirectToAction("Index");
          }
 
          if (ModelState.IsValid) {
@@ -268,18 +286,24 @@ namespace PhotosErasmusApp.Controllers {
          return View(photo);
       }
 
+
+
+
       // GET: Photos/Delete/5
       public async Task<IActionResult> Delete(int? id) {
          if (id==null) {
-            return NotFound();
+            // return NotFound();
+            return RedirectToAction("Index");
          }
 
          var photo = await _context.Photos
-             .Include(p => p.Category)
-             .Include(p => p.Owner)
-             .FirstOrDefaultAsync(m => m.Id==id);
+                                   .Include(p => p.Category)
+                                   .Include(p => p.Owner)
+                                   .FirstOrDefaultAsync(m => m.Id==id&&
+                                                             m.Owner.UserName==User.Identity.Name);
          if (photo==null) {
-            return NotFound();
+            // return NotFound();
+            return RedirectToAction("Index");
          }
 
          return View(photo);
@@ -289,12 +313,23 @@ namespace PhotosErasmusApp.Controllers {
       [HttpPost, ActionName("Delete")]
       [ValidateAntiForgeryToken]
       public async Task<IActionResult> DeleteConfirmed(int id) {
-         var photo = await _context.Photos.FindAsync(id);
-         if (photo!=null) {
-            _context.Photos.Remove(photo);
+
+         //var photo = await _context.Photos.FindAsync(id);
+         var photo = await _context.Photos
+                                   .Where(p => p.Id==id&&
+                                               p.Owner.UserName==User.Identity.Name)
+                                   .FirstOrDefaultAsync();
+         try {
+            if (photo!=null) {
+               _context.Photos.Remove(photo);
+               await _context.SaveChangesAsync();
+            }
+         }
+         catch (Exception) {
+            // DO NOT FORGET TO DEAL WITH THE EXCEPTION!!!
+            throw;
          }
 
-         await _context.SaveChangesAsync();
          return RedirectToAction(nameof(Index));
       }
 

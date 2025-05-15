@@ -1,7 +1,7 @@
 ﻿@model IEnumerable<PhotosErasmusApp.Models.Photos>
 
 @{
-   ViewData["Title"] = "Index";
+   ViewData["Title"]="Index";
 }
 
 <h1>Index</h1>
@@ -9,20 +9,15 @@
 <p>
    <a asp-action="Create">Create New</a>
 </p>
+
 <table class="table">
    <thead>
       <tr>
          <th>
-            @Html.DisplayNameFor(model => model.Description)
-         </th>
-         <th>
-            @Html.DisplayNameFor(model => model.Date)
-         </th>
-         <th>
             @Html.DisplayNameFor(model => model.FileName)
          </th>
          <th>
-            @Html.DisplayNameFor(model => model.Price)
+            @Html.DisplayNameFor(model => model.Date)
          </th>
          <th>
             @Html.DisplayNameFor(model => model.Category)
@@ -37,30 +32,29 @@
       @foreach (var item in Model) {
          <tr>
             <td>
-               @Html.DisplayFor(modelItem => item.Description)
-            </td>
-            <td>
-               @Html.DisplayFor(modelItem => item.Date)
-            </td>
-            <td>
                @*    @Html.DisplayFor(modelItem => item.FileName)  *@
                <img src="~/images/@item.FileName"
                     alt="image of photo"
                     height="100" />
             </td>
             <td>
-               @Html.DisplayFor(modelItem => item.Price)
+               @Html.DisplayFor(modelItem => item.Date)
             </td>
             <td>
                @Html.DisplayFor(modelItem => item.Category.Category)
             </td>
             <td>
-               @Html.DisplayFor(modelItem => item.Owner.Id)
+               @Html.DisplayFor(modelItem => item.Owner.Name)
             </td>
             <td>
-               <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
-               <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
-               <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
+               @if (User.Identity.IsAuthenticated &&
+                    item.Owner.UserName == User.Identity.Name ) {
+                  <div>
+                     <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
+                     <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
+                     <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
+                  </div>
+               }
             </td>
          </tr>
       }
