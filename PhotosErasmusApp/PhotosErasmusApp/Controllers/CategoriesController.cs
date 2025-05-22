@@ -15,7 +15,7 @@ namespace PhotosErasmusApp.Controllers {
 
 
 
-   [Authorize(Roles ="administrator")]
+//   [Authorize(Roles ="administrator")]
    public class CategoriesController: Controller {
 
       private readonly ApplicationDbContext _context;
