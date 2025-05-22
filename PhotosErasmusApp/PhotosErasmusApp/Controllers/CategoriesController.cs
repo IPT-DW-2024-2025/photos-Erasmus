@@ -15,13 +15,13 @@ namespace PhotosErasmusApp.Controllers {
 
 
 
-   [Authorize(Roles ="administrator")]
-   public class CategoriesController: Controller {
+   //   [Authorize(Roles ="administrator")]
+   public class CategoriesController:Controller {
 
       private readonly ApplicationDbContext _context;
 
       public CategoriesController(ApplicationDbContext context) {
-         _context = context;
+         _context=context;
       }
 
       // GET: Categories
@@ -35,12 +35,12 @@ namespace PhotosErasmusApp.Controllers {
          // FROM Categories c
          // ORDER BY c.Category
 
-         return View(await _context.Categories.OrderBy(c=>c.Category).ToListAsync());
+         return View(await _context.Categories.OrderBy(c => c.Category).ToListAsync());
       }
 
       // GET: Categories/Details/5
       public async Task<IActionResult> Details(int? id) {
-         if (id == null) {
+         if (id==null) {
             return NotFound();
          }
 
@@ -48,8 +48,8 @@ namespace PhotosErasmusApp.Controllers {
          // FROM Categories m
          // WHERE m.Id = id
          var category = await _context.Categories
-                                      .FirstOrDefaultAsync(m => m.Id == id);
-         if (category == null) {
+                                      .FirstOrDefaultAsync(m => m.Id==id);
+         if (category==null) {
             return NotFound();
          }
 
@@ -77,14 +77,18 @@ namespace PhotosErasmusApp.Controllers {
 
       // GET: Categories/Edit/5
       public async Task<IActionResult> Edit(int? id) {
-         if (id == null) {
+         if (id==null) {
             return NotFound();
          }
 
          var category = await _context.Categories.FindAsync(id);
-         if (category == null) {
+         if (category==null) {
             return NotFound();
          }
+
+         // write the Category ID on the 'cookie'
+         HttpContext.Session.SetInt32("CategoryID",category.Id);
+
          return View(category);
       }
 
@@ -93,10 +97,25 @@ namespace PhotosErasmusApp.Controllers {
       // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
       [HttpPost]
       [ValidateAntiForgeryToken]
-      public async Task<IActionResult> Edit(int id, [Bind("Id,Category")] Categories newCategory) {
-         if (id != newCategory.Id) {
+      public async Task<IActionResult> Edit(int id,[Bind("Id,Category")] Categories newCategory) {
+         if (id!=newCategory.Id) {
             return NotFound();
          }
+
+
+         // Read the cookie value
+         var categoryId = HttpContext.Session.GetInt32("CategoryID");
+         if (categoryId==null) {
+            ModelState.AddModelError("","You must edit the 'category' more quickly");
+            return RedirectToAction("Index");
+         }
+         // if the CategoryId is not equal to newCategory.Id,
+         // this means that our user has changed it, without authorization
+         if (categoryId!=newCategory.Id) {
+            return RedirectToAction("Index");
+         }
+
+
 
          if (ModelState.IsValid) {
             try {
@@ -118,13 +137,13 @@ namespace PhotosErasmusApp.Controllers {
 
       // GET: Categories/Delete/5
       public async Task<IActionResult> Delete(int? id) {
-         if (id == null) {
+         if (id==null) {
             return NotFound();
          }
 
          var category = await _context.Categories
-             .FirstOrDefaultAsync(m => m.Id == id);
-         if (category == null) {
+             .FirstOrDefaultAsync(m => m.Id==id);
+         if (category==null) {
             return NotFound();
          }
 
@@ -136,7 +155,7 @@ namespace PhotosErasmusApp.Controllers {
       [ValidateAntiForgeryToken]
       public async Task<IActionResult> DeleteConfirmed(int id) {
          var category = await _context.Categories.FindAsync(id);
-         if (category != null) {
+         if (category!=null) {
             _context.Categories.Remove(category);
          }
 
@@ -145,7 +164,7 @@ namespace PhotosErasmusApp.Controllers {
       }
 
       private bool CategoriesExists(int id) {
-         return _context.Categories.Any(e => e.Id == id);
+         return _context.Categories.Any(e => e.Id==id);
       }
    }
 }
