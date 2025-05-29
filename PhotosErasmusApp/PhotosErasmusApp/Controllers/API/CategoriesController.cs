@@ -77,37 +77,37 @@ namespace PhotosErasmusApp.Controllers.API {
          return NoContent();
       }
 
-      /// <summary>
-      /// add a new Category
-      /// </summary>
-      /// <param name="category">the data of the new category</param>
-      /// <returns></returns>
-      // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-      [HttpPost]
-      public async Task<ActionResult<Categories>> PostCategory(Categories category) {
-         _context.Categories.Add(category);
-         await _context.SaveChangesAsync();
+      ///// <summary>
+      ///// add a new Category
+      ///// </summary>
+      ///// <param name="category">the data of the new category</param>
+      ///// <returns></returns>
+      //// To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+      //[HttpPost]
+      //public async Task<ActionResult<Categories>> PostCategory(Categories category) {
+      //   _context.Categories.Add(category);
+      //   await _context.SaveChangesAsync();
 
-         return CreatedAtAction("GetCategories",new { id = category.Id },category);
-      }
+      //   return CreatedAtAction("GetCategories",new { id = category.Id },category);
+      //}
 
-      /// <summary>
-      /// DELETE a category
-      /// </summary>
-      /// <param name="id">the identification of category to be deleted</param>
-      /// <returns></returns>
-      [HttpDelete("{id}")]
-      public async Task<IActionResult> DeleteCategory(int id) {
-         var category = await _context.Categories.FindAsync(id);
-         if (category==null) {
-            return NotFound();
-         }
+      ///// <summary>
+      ///// DELETE a category
+      ///// </summary>
+      ///// <param name="id">the identification of category to be deleted</param>
+      ///// <returns></returns>
+      //[HttpDelete("{id}")]
+      //public async Task<IActionResult> DeleteCategory(int id) {
+      //   var category = await _context.Categories.FindAsync(id);
+      //   if (category==null) {
+      //      return NotFound();
+      //   }
 
-         _context.Categories.Remove(category);
-         await _context.SaveChangesAsync();
+      //   _context.Categories.Remove(category);
+      //   await _context.SaveChangesAsync();
 
-         return NoContent();
-      }
+      //   return NoContent();
+      //}
 
       /// <summary>
       /// search for a category
