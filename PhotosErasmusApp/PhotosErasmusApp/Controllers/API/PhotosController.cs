@@ -9,6 +9,7 @@ using Microsoft.EntityFrameworkCore;
 
 using PhotosErasmusApp.Data;
 using PhotosErasmusApp.Models;
+using PhotosErasmusApp.Models.ViewModels;
 
 namespace PhotosErasmusApp.Controllers.API {
 
@@ -24,14 +25,43 @@ namespace PhotosErasmusApp.Controllers.API {
 
       // GET: api/Photos
       [HttpGet]
-      public async Task<ActionResult<IEnumerable<Photos>>> GetPhotos() {
-         return await _context.Photos.ToListAsync();
+      public async Task<ActionResult<IEnumerable<PhotosDTO>>> GetPhotos() {
+
+         /*
+         // SELECT *
+         // FROM Photos
+         var list = await _context.Photos.ToListAsync();
+         */
+
+         // SELECT p.Descrition, p.Descrition, c.Category, p.Date
+         // FROM Photos p INNER JOIN Categories c ON p.CategoryFY=c.Id
+         // ORDER BY p.Date DESC
+         var list = await _context.Photos
+                                  .OrderByDescending(p => p.Date)
+                                  .Select(p => new PhotosDTO {
+                                     PhotoDescription=p.Description,
+                                     PhotoFile=p.FileName,
+                                     Date=p.Date,
+                                     Category=p.Category.Category
+                                  })
+                                  .ToListAsync();
+         return list;
       }
 
       // GET: api/Photos/5
       [HttpGet("{id}")]
-      public async Task<ActionResult<Photos>> GetPhoto(int id) {
-         var photo = await _context.Photos.FindAsync(id);
+      public async Task<ActionResult<PhotoWithOwnerDTO>> GetPhoto(int id) {
+         //    var photo = await _context.Photos.FindAsync(id);
+         var photo = await _context.Photos
+                                   .Where(p => p.Id==id)
+                                   .Select(p => new PhotoWithOwnerDTO {
+                                       PhotoDescription=p.Description,
+                                       PhotoFile=p.FileName,
+                                       Date=p.Date,
+                                       Category=p.Category.Category,
+                                       Owner=p.Owner.Name
+                                   })
+                                   .FirstOrDefaultAsync();
 
          if (photo==null) {
             return NotFound();
