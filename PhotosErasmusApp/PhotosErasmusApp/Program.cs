@@ -3,6 +3,7 @@ using Microsoft.CodeAnalysis.Options;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
 
 using PhotosErasmusApp.Data;
 using PhotosErasmusApp.Services;
@@ -71,6 +72,22 @@ builder.Services.AddScoped<TokenService>();
 
 
 
+// Adiciona o Swagger
+// builder.Services.AddEndpointsApiExplorer();   // necessária apenas para APIs mínimas. 
+// builder.Services.AddSwaggerGen();
+
+// add the package Swashbuckle.ASPNetCore
+
+builder.Services.AddSwaggerGen(c => {
+   c.SwaggerDoc("v1",new OpenApiInfo {
+      Title="My API",
+      Version="v1",
+      Description="API  to manage my photos, categories and users"
+   });
+
+});
+
+
 
 
 
@@ -82,6 +99,11 @@ var app = builder.Build();
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment()) {
    app.UseMigrationsEndPoint();
+
+   // start the use of Swagger
+   app.UseSwagger();
+   app.UseSwaggerUI();
+
 }
 else {
    app.UseExceptionHandler("/Home/Error");
