@@ -8,6 +8,7 @@ using Microsoft.OpenApi.Models;
 using PhotosErasmusApp.Data;
 using PhotosErasmusApp.Services;
 
+using System.Reflection;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -84,6 +85,11 @@ builder.Services.AddSwaggerGen(c => {
       Version="v1",
       Description="API  to manage my photos, categories and users"
    });
+
+   // path to the generated XML
+   var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
+   var xmlPath = Path.Combine(AppContext.BaseDirectory,xmlFile);
+   c.IncludeXmlComments(xmlPath);
 
 });
 

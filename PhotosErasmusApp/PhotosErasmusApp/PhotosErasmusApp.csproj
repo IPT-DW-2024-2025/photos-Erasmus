@@ -5,6 +5,10 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <UserSecretsId>aspnet-PhotosErasmusApp-5d94ccd0-18b5-4dbf-bf54-c67b45692520</UserSecretsId>
+
+	  <GenerateDocumentationFile>true</GenerateDocumentationFile>
+	  <NoWarn>$(NoWarn);1591</NoWarn> <!-- Stops warnings for lacking of Summaries -->
+  
   </PropertyGroup>
 
   <ItemGroup>
