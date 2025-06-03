@@ -2,8 +2,11 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.CodeAnalysis.Options;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
+using Microsoft.IdentityModel.Tokens;
 
 using PhotosErasmusApp.Data;
+
+using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -30,6 +33,43 @@ builder.Services.AddSession(
       options.Cookie.IsEssential=true;
    } );
 builder.Services.AddDistributedMemoryCache();
+
+
+
+// *******************************************************************
+// Install the package
+// Microsoft.AspNetCore.Authentication.JwtBearer
+//
+// using Microsoft.IdentityModel.Tokens;
+// *******************************************************************
+// JWT Settings
+var jwtSettings = builder.Configuration.GetSection("Jwt");
+var key = Encoding.UTF8.GetBytes(jwtSettings["Key"]);
+
+builder.Services.AddAuthentication(options => { })
+   .AddCookie("Cookies",options => {
+      options.LoginPath="/Identity/Account/Login";
+      options.AccessDeniedPath="/Identity/Account/AccessDenied";
+   })
+   .AddJwtBearer("Bearer",options => {
+      options.TokenValidationParameters=new TokenValidationParameters {
+         ValidateIssuer=true,
+         ValidateAudience=true,
+         ValidateLifetime=true,
+         ValidateIssuerSigningKey=true,
+         ValidIssuer=jwtSettings["Issuer"],
+         ValidAudience=jwtSettings["Audience"],
+         IssuerSigningKey=new SymmetricSecurityKey(key)
+      };
+   });
+
+
+// configuração do JWT
+builder.Services.AddScoped<TokenService>();
+
+
+
+
 
 
 
